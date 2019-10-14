@@ -80,5 +80,6 @@ func isShamsiHoliday(m, d int) bool {
 }
 
 func addHoliday(m, d int) {
-	holidays = append(holidays, fmt.Sprintf(dateFormat, m, d))
+	t := jalali.Jtog(y, m, d)
+	holidays = append(holidays, fmt.Sprintf(dateFormat, m, d), t.Format("2006/01/02"))
 }
