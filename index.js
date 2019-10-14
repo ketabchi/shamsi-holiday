@@ -1,4 +1,4 @@
-const holidays = require('./holidays.json')
+const holidays = require('./holidays.json');
 
 function isHoliday(date) {
 	let y = date.getFullYear(), m = date.getMonth()+1, d = date.getDate();
