@@ -15,7 +15,7 @@ import (
 	"github.com/mostafah/go-jalali/jalali"
 )
 
-const y = 1398
+const y = 1399
 
 var (
 	holidays   []string
@@ -25,7 +25,7 @@ var (
 )
 
 func main() {
-	dom := []int{31, 31, 31, 31, 31, 31, 30, 30, 30, 30, 30, 29}
+	dom := []int{31, 31, 31, 31, 31, 31, 30, 30, 30, 30, 30, 30}
 
 	for m := 1; m < 13; m++ {
 		for d := 1; d < dom[m-1]; d++ {
