@@ -33,9 +33,9 @@ func main() {
 		log.Printf("%s isn't in both", diff)
 	}
 
-	sort.Strings(taghvimcomHds)
+	sort.Strings(timeirHds)
 
-	data, err := json.MarshalIndent(taghvimcomHds, "", "	")
+	data, err := json.MarshalIndent(timeirHds, "", "	")
 	if err != nil {
 		log.Fatal(err)
 	}
