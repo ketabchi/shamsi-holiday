@@ -8,46 +8,34 @@ import (
 	"net/http"
 	"sort"
 	"strconv"
-	"sync"
 	"time"
 
-	"github.com/PuerkitoBio/goquery"
+	"github.com/ketabchi/util"
 	"github.com/mostafah/go-jalali/jalali"
 )
 
-const y = 1399
+const YEAR = 1399
+
+var DOM = [12]int{31, 31, 31, 31, 31, 31, 30, 30, 30, 30, 30, 30}
 
 var (
-	holidays   []string
-	wg         sync.WaitGroup
-	dateFormat = strconv.Itoa(y) + "/%02d/%02d"
-	urlFormat  = "https://www.time.ir/fa/event/list/0/" + strconv.Itoa(y) + "/%d/%d"
+	client *http.Client
+
+	dateFormat = strconv.Itoa(YEAR) + "/%02d/%02d"
 )
 
 func main() {
-	dom := []int{31, 31, 31, 31, 31, 31, 30, 30, 30, 30, 30, 30}
+	taghvimcomHds := taghvimcomHolidays()
+	timeirHds := timeirHolidays()
 
-	for m := 1; m < 13; m++ {
-		for d := 1; d < dom[m-1]; d++ {
-			if isFriday(m, d) {
-				addHoliday(m, d)
-			} else {
-				go func(m, d int) {
-					wg.Add(1)
-					defer wg.Done()
-
-					if isShamsiHoliday(m, d) {
-						addHoliday(m, d)
-					}
-				}(m, d)
-			}
-		}
-		wg.Wait()
+	diffs := diffHolidays(taghvimcomHds, timeirHds)
+	for _, diff := range diffs {
+		log.Printf("%s isn't in both", diff)
 	}
 
-	sort.Strings(holidays)
+	sort.Strings(taghvimcomHds)
 
-	data, err := json.MarshalIndent(holidays, "", "	")
+	data, err := json.MarshalIndent(taghvimcomHds, "", "	")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -55,31 +43,38 @@ func main() {
 	ioutil.WriteFile("holidays.json", data, 0644)
 }
 
+func diffHolidays(hds1, hds2 []string) []string {
+	diffs := make([]string, 0)
+
+	for _, hd := range hds1 {
+		if !util.SliceContains(diffs, hd) && !util.SliceContains(hds2, hd) {
+			diffs = append(diffs, hd)
+		}
+	}
+	for _, hd := range hds2 {
+		if !util.SliceContains(diffs, hd) && !util.SliceContains(hds1, hd) {
+			diffs = append(diffs, hd)
+		}
+	}
+
+	return diffs
+}
+
 func isFriday(m, d int) bool {
-	t := jalali.Jtog(y, m, d)
+	t := jalali.Jtog(YEAR, m, d)
 	return t.Weekday() == time.Friday
 }
 
-func isShamsiHoliday(m, d int) bool {
-	url := fmt.Sprintf(urlFormat, m, d)
-
-	res, err := http.Get(url)
-	if err != nil {
-		log.Fatal(err)
-	}
-	if res.StatusCode != 200 {
-		log.Fatalf("Expected status code 200 got %d from %s", res.StatusCode, url)
-	}
-
-	doc, err := goquery.NewDocumentFromResponse(res)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	return doc.Find(".eventHoliday").Length() != 0
+func toDateFormat(m, d int) (string, string) {
+	t := jalali.Jtog(YEAR, m, d)
+	return fmt.Sprintf(dateFormat, m, d), t.Format("2006/01/02")
 }
 
-func addHoliday(m, d int) {
-	t := jalali.Jtog(y, m, d)
-	holidays = append(holidays, fmt.Sprintf(dateFormat, m, d), t.Format("2006/01/02"))
+func addHoliday(hds *[]string, m, d int) {
+	jd, md := toDateFormat(m, d)
+	*hds = append(*hds, jd, md)
+}
+
+func init() {
+	client = new(http.Client)
 }
