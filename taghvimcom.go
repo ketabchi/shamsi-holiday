@@ -48,8 +48,8 @@ func taghvimcomHolidays() []string {
 
 	for m := 1; m < 13; m++ {
 		for d := 1; d <= DOM[m-1]; d++ {
-			if isFriday(m, d) || taghvimcom[m-1].IsHoliday(d) {
-				addHoliday(&holidays, m, d)
+			if isFriday(YEAR, m, d) || taghvimcom[m-1].IsHoliday(d) {
+				addHoliday(&holidays, YEAR, m, d)
 			}
 		}
 	}
