@@ -13,7 +13,7 @@ import (
 	"github.com/mostafah/go-jalali/jalali"
 )
 
-const YEAR = 1401
+const YEAR = 1402
 
 var DOM = [12]int{31, 31, 31, 31, 31, 31, 30, 30, 30, 30, 30, 30}
 
