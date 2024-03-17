@@ -1,6 +1,6 @@
 {
   "name": "shamsi-holiday",
-  "version": "1.6.0",
+  "version": "1.7.0",
   "description": "persian shamsi holidays",
   "main": "index.js",
   "scripts": {
